@@ -1,0 +1,1218 @@
+Pastikan bagian Schema::create('detail_tagihan'...) kurang lebih memiliki kolom seperti:
+
+Schema::create('detail_tagihan', function (Blueprint $table) {
+    $table->id();
+
+    $table->foreignId('tagihan_id')
+        ->constrained('tagihan')
+        ->cascadeOnDelete();
+
+    $table->foreignId('jenis_tagihan_id')
+        ->constrained('jenis_tagihan')
+        ->cascadeOnDelete();
+
+    $table->decimal('nominal', 12, 2);
+
+    $table->decimal('nominal_terbayar', 12, 2)
+        ->default(0);
+
+    $table->enum('status', [
+        'belum_bayar',
+        'sebagian',
+        'lunas'
+    ])->default('belum_bayar');
+
+    $table->timestamps();
+});
+
+
+Modelnya seharusnya memiliki: deatail_tagihan.php
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class DetailTagihan extends Model
+{
+    use HasFactory;
+
+    protected $table = 'detail_tagihan';
+
+    protected $fillable = [
+        'tagihan_id',
+        'jenis_tagihan_id',
+        'nominal',
+        'nominal_terbayar',
+        'status',
+    ];
+
+    protected $casts = [
+        'nominal' => 'decimal:2',
+        'nominal_terbayar' => 'decimal:2',
+    ];
+
+    public function tagihan()
+    {
+        return $this->belongsTo(Tagihan::class);
+    }
+
+    public function jenisTagihan()
+    {
+        return $this->belongsTo(JenisTagihan::class);
+    }
+}
+
+function pada file tagihan.php
+    public function detailTagihan()
+    {
+        return $this->hasMany(
+            DetailTagihan::class,
+            'tagihan_id'
+        );
+    }
+
+isi file detailpembayaran.php
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class DetailPembayaran extends Model
+{
+    use HasFactory;
+
+    protected $table = 'detail_pembayaran';
+
+    protected $fillable = [
+        'pembayaran_id',
+        'detail_tagihan_id',
+        'nominal_dibayar',
+        'keterangan',
+    ];
+
+    protected $casts = [
+        'nominal_dibayar' => 'decimal:2',
+    ];
+
+    public function pembayaran()
+    {
+        return $this->belongsTo(
+            Pembayaran::class,
+            'pembayaran_id'
+        );
+    }
+
+    public function detailTagihan()
+    {
+        return $this->belongsTo(
+            DetailTagihan::class,
+            'detail_tagihan_id'
+        );
+    }
+}
+
+function pada detail_tagihan
+    public function getTotalDibayarAttribute()
+    {
+        return $this->detailPembayaran()
+            ->whereHas('pembayaran', function ($query) {
+                $query->where('status', 'diterima');
+            })
+            ->sum('nominal_dibayar');
+    }
+
+    public function getSisaAttribute()
+    {
+        $sisa = (float) $this->nominal - (float) $this->total_dibayar;
+
+        return max(0, $sisa);
+    }
+
+    public function getStatusPembayaranAttribute()
+    {
+        $nominal = (float) $this->nominal;
+        $dibayar = (float) $this->total_dibayar;
+
+        if ($dibayar <= 0) {
+            return 'BELUM_BAYAR';
+        }
+
+        if ($dibayar < $nominal) {
+            return 'SEBAGIAN';
+        }
+
+        return 'LUNAS';
+    }
+
+
+        <form
+            method="GET"
+            action="{{ route('admin.pembayaran.index') }}"
+        >
+
+            <div class="filter-row">
+
+                <div class="form-group">
+
+                    <label for="status">
+                        Status Pembayaran
+                    </label>
+
+                    <select
+                        name="status"
+                        id="status"
+                    >
+
+                        <option value="">
+                            Semua Status
+                        </option>
+
+                        <option
+                            value="menunggu"
+                            {{ request('status') == 'menunggu' ? 'selected' : '' }}
+                        >
+                            Menunggu
+                        </option>
+
+                        <option
+                            value="diterima"
+                            {{ request('status') == 'diterima' ? 'selected' : '' }}
+                        >
+                            Diterima
+                        </option>
+
+                        <option
+                            value="ditolak"
+                            {{ request('status') == 'ditolak' ? 'selected' : '' }}
+                        >
+                            Ditolak
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <button type="submit">
+                        Tampilkan
+                    </button>
+
+                </div>
+
+            </div>
+
+        </form>
+
+
+
+
+index.blade.php
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Data Pembayaran - Pondok Pesantren Al Asror</title>
+
+    <style>
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f9;
+            margin: 0;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        h1 {
+            margin-top: 0;
+            margin-bottom: 8px;
+        }
+
+        .text-muted {
+            color: #6c757d;
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 15px;
+            align-items: end;
+            flex-wrap: wrap;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        select {
+            padding: 10px;
+            min-width: 220px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            background: white;
+        }
+
+        button {
+            padding: 10px 18px;
+            border: none;
+            border-radius: 6px;
+            background-color: #0d6efd;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0b5ed7;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f1f1f1;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .badge-menunggu {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .badge-diterima {
+            background-color: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .badge-ditolak {
+            background-color: #f8d7da;
+            color: #842029;
+        }
+
+        .badge-lainnya {
+            background-color: #e2e3e5;
+            color: #41464b;
+        }
+
+        .pagination {
+            margin-top: 20px;
+        }
+
+        .pagination a,
+        .pagination span {
+            display: inline-block;
+            padding: 7px 12px;
+            margin-right: 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            text-decoration: none;
+            color: #333;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    {{-- Judul --}}
+    <div class="card">
+
+        <h1>Data Pembayaran</h1>
+
+        <p class="text-muted">
+            Daftar transaksi pembayaran pondok.
+        </p>
+
+    </div>
+
+
+    {{-- Filter --}}
+    <div class="card">
+
+        <h3>Filter Pembayaran</h3>
+
+        <form method="GET" action="{{ route('admin.pembayaran.index') }}" class="mb-4">
+
+            <div class="card">
+                <div class="card-body">
+
+                    <label for="status" class="form-label">
+                        Filter Status Pembayaran
+                    </label>
+
+                    <div class="d-flex gap-2">
+
+                        <select name="status" id="status" class="form-select">
+
+                            <option value="">
+                                Semua Status
+                            </option>
+
+                            <option value="menunggu_verifikasi"
+                                {{ request('status') == 'menunggu_verifikasi' ? 'selected' : '' }}>
+                                Menunggu Verifikasi
+                            </option>
+
+                            <option value="diterima"
+                                {{ request('status') == 'diterima' ? 'selected' : '' }}>
+                                Diterima
+                            </option>
+
+                            <option value="ditolak"
+                                {{ request('status') == 'ditolak' ? 'selected' : '' }}>
+                                Ditolak
+                            </option>
+
+                        </select>
+
+                        <button type="submit" class="btn btn-primary">
+                            Filter
+                        </button>
+
+                        <a href="{{ route('admin.pembayaran.index') }}"
+                        class="btn btn-secondary">
+                            Reset
+                        </a>
+
+                    </div>
+
+                </div>
+            </div>
+
+        </form>
+
+    </div>
+
+
+    {{-- Data Pembayaran --}}
+    <div class="card">
+
+        <h3>Daftar Pembayaran</h3>
+
+        <div style="overflow-x: auto;">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>No</th>
+
+                        <th>Kode Transaksi</th>
+
+                        <th>Tanggal</th>
+
+                        <th>Metode</th>
+
+                        <th>Nominal</th>
+
+                        <th>Status</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    @forelse ($pembayaran as $index => $item)
+
+                        <tr>
+
+                            <td>
+                                {{ $pembayaran->firstItem() + $index }}
+                            </td>
+
+                            <td>
+                                {{ $item->kode_transaksi }}
+                            </td>
+
+                            <td>
+                                {{ \Carbon\Carbon::parse($item->tanggal_bayar)->format('d-m-Y H:i') }}
+                            </td>
+
+                            <td>
+                                {{ ucfirst($item->metode) }}
+                            </td>
+
+                            <td>
+                                Rp {{ number_format($item->total_transfer, 0, ',', '.') }}
+                            </td>
+
+                            <td>
+
+                                @if ($item->status === 'menunggu')
+
+                                    <span class="badge badge-menunggu">
+                                        Menunggu
+                                    </span>
+
+                                @elseif ($item->status === 'diterima')
+
+                                    <span class="badge badge-diterima">
+                                        Diterima
+                                    </span>
+
+                                @elseif ($item->status === 'ditolak')
+
+                                    <span class="badge badge-ditolak">
+                                        Ditolak
+                                    </span>
+
+                                @else
+
+                                    <span class="badge badge-lainnya">
+                                        {{ ucfirst($item->status) }}
+                                    </span>
+
+                                @endif
+
+                            </td>
+
+                        </tr>
+
+                    @empty
+
+                        <tr>
+
+                            <td
+                                colspan="6"
+                                class="text-center"
+                            >
+                                Belum ada data pembayaran.
+                            </td>
+
+                        </tr>
+
+                    @endforelse
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        {{-- Pagination --}}
+        <div class="pagination">
+
+            {{ $pembayaran->withQueryString()->links() }}
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>
+
+Route::get(
+    '/admin/pembayaran-offline/create',
+    [PembayaranController::class, 'createOffline']
+)->name('admin.pembayaran.offline.create');
+
+Route::post(
+    '/admin/pembayaran-offline',
+    [PembayaranController::class, 'storeOffline']
+)->name('admin.pembayaran.offline.store');
+
+
+
+permasalahan
+1. menambahkan fitur lihat pada login
+2. apakah pada menu tarif tagihan tidak dikasih tombol hapus
+3. perbedaan antara santri tahfidz dan biasa
+4. 
+
+
+
+
+
+
+<style>
+
+    .wali-sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+
+        width: 260px;
+        height: 100vh;
+
+        display: flex;
+        flex-direction: column;
+
+        background: #212529;
+        color: #fff;
+
+        z-index: 1030;
+
+        transition: width 0.25s ease;
+    }
+
+
+    /*
+    =========================
+    BODY / CONTENT
+    =========================
+    */
+
+    html,
+    body {
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        padding-left: 260px;
+        background: #f8f9fa;
+
+        transition: padding-left 0.25s ease;
+    }
+
+    body.wali-sidebar-collapsed {
+        padding-left: 78px;
+    }
+
+
+    /*
+    =========================
+    HEADER
+    =========================
+    */
+
+    .wali-sidebar-header {
+
+        height: 82px;
+
+        display: flex;
+        align-items: center;
+
+        padding: 16px;
+
+        border-bottom:
+            1px solid
+            rgba(255,255,255,0.15);
+
+        flex-shrink: 0;
+    }
+
+
+    .wali-brand-logo {
+
+        width: 48px;
+        height: 48px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        background: #fff;
+        color: #212529;
+
+        border-radius: 12px;
+
+        font-size: 16px;
+        font-weight: 800;
+
+        flex-shrink: 0;
+    }
+
+
+    .wali-brand-text {
+
+        margin-left: 12px;
+
+        overflow: hidden;
+
+        white-space: nowrap;
+
+        transition:
+            opacity 0.2s ease,
+            width 0.2s ease;
+    }
+
+
+    .wali-brand-title {
+
+        font-size: 18px;
+        font-weight: 800;
+        line-height: 1.2;
+    }
+
+
+    .wali-brand-subtitle {
+
+        font-size: 11px;
+
+        color:
+            rgba(255,255,255,0.65);
+    }
+
+
+    /*
+    =========================
+    TOGGLE
+    =========================
+    */
+
+    .wali-sidebar-toggle {
+
+        position: absolute;
+
+        top: 28px;
+        right: -14px;
+
+        width: 28px;
+        height: 28px;
+
+        border: none;
+
+        border-radius: 50%;
+
+        background: #fff;
+        color: #212529;
+
+        display: flex;
+
+        align-items: center;
+        justify-content: center;
+
+        box-shadow:
+            0 2px 8px
+            rgba(0,0,0,0.25);
+
+        cursor: pointer;
+
+        z-index: 2;
+
+        transition:
+            transform 0.25s ease;
+    }
+
+
+    /*
+    =========================
+    MENU
+    =========================
+    */
+
+    .wali-sidebar-menu {
+
+        flex: 1;
+
+        min-height: 0;
+
+        overflow-y: auto;
+        overflow-x: hidden;
+
+        padding:
+            14px 10px;
+    }
+
+
+    .wali-sidebar-menu::-webkit-scrollbar {
+
+        width: 6px;
+    }
+
+
+    .wali-sidebar-menu::-webkit-scrollbar-thumb {
+
+        background:
+            rgba(255,255,255,0.25);
+
+        border-radius: 10px;
+    }
+
+
+    .wali-menu-link {
+
+        display: flex;
+
+        align-items: center;
+
+        min-height: 44px;
+
+        padding:
+            9px 12px;
+
+        margin-bottom: 4px;
+
+        color:
+            rgba(255,255,255,0.86);
+
+        text-decoration: none;
+
+        border-radius: 8px;
+
+        white-space: nowrap;
+
+        transition:
+            background 0.2s ease,
+            color 0.2s ease;
+    }
+
+
+    .wali-menu-link i {
+
+        width: 24px;
+
+        font-size: 18px;
+
+        text-align: center;
+
+        flex-shrink: 0;
+    }
+
+
+    .wali-menu-text {
+
+        margin-left: 10px;
+
+        overflow: hidden;
+
+        transition:
+            opacity 0.2s ease,
+            width 0.2s ease;
+    }
+
+
+    .wali-menu-link:hover {
+
+        background:
+            rgba(255,255,255,0.1);
+
+        color: #fff;
+    }
+
+
+    .wali-menu-link.active {
+
+        background:
+            rgba(255,255,255,0.16);
+
+        color: #fff;
+
+        font-weight: 600;
+    }
+
+
+    /*
+    =========================
+    FOOTER
+    =========================
+    */
+
+    .wali-sidebar-footer {
+
+        flex-shrink: 0;
+
+        padding:
+            14px 16px;
+
+        border-top:
+            1px solid
+            rgba(255,255,255,0.15);
+    }
+
+
+    .wali-login-label {
+
+        font-size: 11px;
+
+        color:
+            rgba(255,255,255,0.6);
+
+        margin-bottom: 4px;
+
+        white-space: nowrap;
+    }
+
+
+    .wali-login-name {
+
+        font-size: 14px;
+
+        font-weight: 700;
+
+        margin-bottom: 12px;
+
+        white-space: nowrap;
+
+        overflow: hidden;
+    }
+
+
+    .wali-logout {
+
+        width: 100%;
+
+        border: none;
+
+        border-radius: 8px;
+
+        padding: 9px 12px;
+
+        background: #dc3545;
+
+        color: #fff;
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+        gap: 8px;
+    }
+
+
+    /*
+    =========================
+    COLLAPSED
+    =========================
+    */
+
+    body.wali-sidebar-collapsed
+    .wali-sidebar {
+
+        width: 78px;
+    }
+
+
+    body.wali-sidebar-collapsed
+    .wali-brand-text,
+
+    body.wali-sidebar-collapsed
+    .wali-menu-text,
+
+    body.wali-sidebar-collapsed
+    .wali-login-label,
+
+    body.wali-sidebar-collapsed
+    .wali-login-name {
+
+        opacity: 0;
+
+        width: 0;
+
+        margin-left: 0;
+    }
+
+
+    body.wali-sidebar-collapsed
+    .wali-sidebar-header {
+
+        justify-content: center;
+
+        padding:
+            16px 10px;
+    }
+
+
+    body.wali-sidebar-collapsed
+    .wali-menu-link {
+
+        justify-content: center;
+
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+
+    body.wali-sidebar-collapsed
+    .wali-sidebar-footer {
+
+        padding:
+            14px 10px;
+    }
+
+
+    body.wali-sidebar-collapsed
+    .wali-logout {
+
+        padding: 10px;
+    }
+
+
+    body.wali-sidebar-collapsed
+    .wali-logout span {
+
+        display: none;
+    }
+
+
+    body.wali-sidebar-collapsed
+    .wali-sidebar-toggle {
+
+        transform:
+            rotate(180deg);
+    }
+
+</style>
+
+
+<link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+>
+
+
+<div class="wali-sidebar">
+
+
+    <!-- HEADER -->
+
+    <div class="wali-sidebar-header">
+
+        <div class="wali-brand-logo">
+            AA
+        </div>
+
+        <div class="wali-brand-text">
+
+            <div class="wali-brand-title">
+                AL ASROR
+            </div>
+
+            <div class="wali-brand-subtitle">
+                Portal Wali Santri
+            </div>
+
+        </div>
+
+
+        <button
+            type="button"
+            class="wali-sidebar-toggle"
+            id="waliSidebarToggle"
+            title="Buka/Tutup Sidebar"
+        >
+
+            <i class="bi bi-chevron-left"></i>
+
+        </button>
+
+    </div>
+
+
+    <!-- MENU -->
+
+    <div class="wali-sidebar-menu">
+
+
+        <a
+            href="{{ route('wali.dashboard') }}"
+            class="wali-menu-link {{ request()->routeIs('wali.dashboard') ? 'active' : '' }}"
+            title="Dashboard"
+        >
+
+            <i class="bi bi-speedometer2"></i>
+
+            <span class="wali-menu-text">
+                Dashboard
+            </span>
+
+        </a>
+
+
+        <a
+            href="{{ route('wali.tagihan.index') }}"
+            class="wali-menu-link {{ request()->routeIs('wali.tagihan.*') ? 'active' : '' }}"
+            title="Tagihan"
+        >
+
+            <i class="bi bi-receipt-cutoff"></i>
+
+            <span class="wali-menu-text">
+                Tagihan
+            </span>
+
+        </a>
+
+
+        <a
+            href="{{ route('akun.password.edit') }}"
+            class="wali-menu-link {{ request()->routeIs('akun.password.*') ? 'active' : '' }}"
+            title="Ganti Password"
+        >
+
+            <i class="bi bi-shield-lock-fill"></i>
+
+            <span class="wali-menu-text">
+                Ganti Password
+            </span>
+
+        </a>
+
+
+        <a
+            href="{{ route('wali.pembayaran.riwayat') }}"
+            class="wali-menu-link {{ request()->routeIs('wali.pembayaran.riwayat') ? 'active' : '' }}"
+            title="Riwayat Pembayaran"
+        >
+
+            <i class="bi bi-clock-history"></i>
+
+            <span class="wali-menu-text">
+                Riwayat Pembayaran
+            </span>
+
+        </a>
+
+    </div>
+
+
+    <!-- FOOTER -->
+
+    <div class="wali-sidebar-footer">
+
+        <div class="wali-login-label">
+            Login sebagai:
+        </div>
+
+        <div class="wali-login-name">
+            {{ auth()->user()->name ?? 'Wali Santri' }}
+        </div>
+
+
+        <form
+            action="{{ route('logout') }}"
+            method="POST"
+        >
+
+            @csrf
+
+            <button
+                type="submit"
+                class="wali-logout"
+                title="Logout"
+            >
+
+                <i class="bi bi-box-arrow-right"></i>
+
+                <span>
+                    Logout
+                </span>
+
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<script>
+
+document.addEventListener(
+    'DOMContentLoaded',
+    function () {
+
+        const toggle =
+            document.getElementById(
+                'waliSidebarToggle'
+            );
+
+        const body =
+            document.body;
+
+
+        const state =
+            localStorage.getItem(
+                'waliSidebarCollapsed'
+            );
+
+
+        if (state === 'true') {
+
+            body.classList.add(
+                'wali-sidebar-collapsed'
+            );
+
+        }
+
+
+        if (!toggle) {
+            return;
+        }
+
+
+        toggle.addEventListener(
+            'click',
+            function () {
+
+                body.classList.toggle(
+                    'wali-sidebar-collapsed'
+                );
+
+
+                localStorage.setItem(
+                    'waliSidebarCollapsed',
+
+                    body.classList.contains(
+                        'wali-sidebar-collapsed'
+                    )
+                );
+
+            }
+        );
+
+    }
+);
+
+</script>

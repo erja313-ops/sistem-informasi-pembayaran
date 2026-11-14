@@ -1,0 +1,1266 @@
+<style>
+
+    .admin-sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 260px;
+        height: 100vh;
+
+        display: flex;
+        flex-direction: column;
+
+        background: #212529;
+        color: #fff;
+
+        z-index: 1030;
+
+        transition:
+            width 0.25s ease;
+    }
+
+    /*
+    =========================
+    HEADER / LOGO
+    =========================
+    */
+
+    .admin-sidebar-header {
+        height: 82px;
+
+        display: flex;
+        align-items: center;
+
+        padding: 16px;
+
+        border-bottom: 1px solid rgba(255,255,255,0.15);
+
+        flex-shrink: 0;
+    }
+
+    .admin-brand-logo {
+        width: 48px;
+        height: 48px;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        background: #ffffff;
+        color: #212529;
+
+        border-radius: 12px;
+
+        font-size: 16px;
+        font-weight: 800;
+
+        flex-shrink: 0;
+    }
+
+    .admin-brand-text {
+        margin-left: 12px;
+        overflow: hidden;
+
+        white-space: nowrap;
+
+        transition:
+            opacity 0.2s ease,
+            width 0.2s ease;
+    }
+
+    .admin-brand-title {
+        font-size: 18px;
+        font-weight: 800;
+        line-height: 1.2;
+    }
+
+    .admin-brand-subtitle {
+        font-size: 11px;
+        color: rgba(255,255,255,0.65);
+    }
+
+    /*
+    =========================
+    TOGGLE
+    =========================
+    */
+
+    .sidebar-toggle {
+        position: absolute;
+
+        top: 28px;
+        right: -14px;
+
+        width: 28px;
+        height: 28px;
+
+        border: none;
+        border-radius: 50%;
+
+        background: #fff;
+        color: #212529;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+
+        cursor: pointer;
+
+        z-index: 2;
+
+        transition: transform 0.25s ease;
+    }
+
+    /*
+    =========================
+    AREA MENU
+    =========================
+    */
+
+    .admin-sidebar-menu {
+        flex: 1;
+
+        min-height: 0;
+
+        overflow-y: auto;
+        overflow-x: hidden;
+
+        padding: 14px 10px;
+    }
+
+    .admin-sidebar-menu::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    .admin-sidebar-menu::-webkit-scrollbar-thumb {
+        background: rgba(255,255,255,0.25);
+        border-radius: 10px;
+    }
+
+    .admin-sidebar-menu::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .admin-menu-link {
+        display: flex;
+        align-items: center;
+
+        min-height: 44px;
+
+        padding: 9px 12px;
+
+        margin-bottom: 4px;
+
+        color: rgba(255,255,255,0.86);
+
+        text-decoration: none;
+
+        border-radius: 8px;
+
+        white-space: nowrap;
+
+        transition:
+            background 0.2s ease,
+            color 0.2s ease;
+    }
+
+    .admin-menu-link i {
+        width: 24px;
+
+        font-size: 18px;
+
+        text-align: center;
+
+        flex-shrink: 0;
+    }
+
+    .admin-menu-text {
+        margin-left: 10px;
+
+        overflow: hidden;
+
+        transition:
+            opacity 0.2s ease,
+            width 0.2s ease;
+    }
+
+    .admin-menu-link:hover {
+        background: rgba(255,255,255,0.1);
+        color: #fff;
+    }
+
+    .admin-menu-link.active {
+        background: rgba(255,255,255,0.16);
+        color: #fff;
+        font-weight: 600;
+    }
+
+    /*
+    =========================
+    FOOTER SIDEBAR
+    =========================
+    */
+
+    .admin-sidebar-footer {
+        flex-shrink: 0;
+
+        padding: 14px 16px;
+
+        border-top: 1px solid rgba(255,255,255,0.15);
+    }
+
+    .admin-login-label {
+        font-size: 11px;
+
+        color: rgba(255,255,255,0.6);
+
+        margin-bottom: 4px;
+
+        white-space: nowrap;
+    }
+
+    .admin-login-name {
+        font-size: 14px;
+
+        font-weight: 700;
+
+        margin-bottom: 12px;
+
+        white-space: nowrap;
+
+        overflow: hidden;
+    }
+
+    .admin-logout {
+        width: 100%;
+
+        border: none;
+
+        border-radius: 8px;
+
+        padding: 9px 12px;
+
+        background: #dc3545;
+
+        color: #fff;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        gap: 8px;
+    }
+
+    /*
+    =========================
+    KETIKA COLLAPSED
+    =========================
+    */
+
+    body.sidebar-collapsed .admin-sidebar {
+        width: 78px;
+    }
+
+    body.sidebar-collapsed .admin-brand-text,
+    body.sidebar-collapsed .admin-menu-text,
+    body.sidebar-collapsed .admin-login-label,
+    body.sidebar-collapsed .admin-login-name {
+        opacity: 0;
+
+        width: 0;
+
+        margin-left: 0;
+    }
+
+    body.sidebar-collapsed .admin-sidebar-header {
+        justify-content: center;
+        padding: 16px 10px;
+    }
+
+    body.sidebar-collapsed .admin-menu-link {
+        justify-content: center;
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    body.sidebar-collapsed .admin-menu-link i {
+        margin: 0;
+    }
+
+    body.sidebar-collapsed .admin-sidebar-footer {
+        padding: 14px 10px;
+    }
+
+    body.sidebar-collapsed .admin-logout {
+        padding: 10px;
+    }
+
+    body.sidebar-collapsed .admin-logout span {
+        display: none;
+    }
+
+    body.sidebar-collapsed .sidebar-toggle {
+        transform: rotate(180deg);
+    }
+
+    /*
+    =========================
+    CONTENT ADMIN
+    =========================
+    */
+
+    html,
+    body {
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        padding-left: 260px;
+        background: #f8f9fa;
+
+        transition: padding-left 0.25s ease;
+    }
+
+    body.sidebar-collapsed {
+        padding-left: 78px;
+    }
+
+    body > .d-flex {
+        min-height: 100vh;
+    }
+
+    .flex-grow-1 {
+        min-width: 0;
+    }
+
+</style>
+
+
+<!-- Bootstrap Icons -->
+<link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+>
+
+
+<div class="admin-sidebar">
+
+    <!-- HEADER -->
+    <div class="admin-sidebar-header">
+
+        <div class="admin-brand-logo">
+            AA
+        </div>
+
+        <div class="admin-brand-text">
+
+            <div class="admin-brand-title">
+                AL ASROR
+            </div>
+
+            <div class="admin-brand-subtitle">
+                Sistem Keuangan
+            </div>
+
+        </div>
+
+        <button
+            type="button"
+            class="sidebar-toggle"
+            id="sidebarToggle"
+            title="Buka/Tutup Sidebar"
+        >
+
+            <i class="bi bi-chevron-left"></i>
+
+        </button>
+
+    </div>
+
+
+    <!-- MENU -->
+    <div class="admin-sidebar-menu">
+
+
+        <!-- DASHBOARD -->
+
+        <a
+            href="{{ route('admin.dashboard') }}"
+            class="admin-menu-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}"
+            title="Dashboard"
+        >
+
+            <i class="bi bi-speedometer2"></i>
+
+            <span class="admin-menu-text">
+                Dashboard
+            </span>
+
+        </a>
+
+
+        <!-- SANTRI -->
+
+        <a
+            href="{{ route('admin.santri.index') }}"
+            class="admin-menu-link {{ request()->routeIs('admin.santri.*') ? 'active' : '' }}"
+            title="Data Santri"
+        >
+
+            <i class="bi bi-mortarboard-fill"></i>
+
+            <span class="admin-menu-text">
+                Data Santri
+            </span>
+
+        </a>
+
+
+        <!-- WALI -->
+
+        <a
+            href="{{ route('admin.wali.index') }}"
+            class="admin-menu-link {{ request()->routeIs('admin.wali.*') ? 'active' : '' }}"
+            title="Data Wali"
+        >
+
+            <i class="bi bi-person-vcard-fill"></i>
+
+            <span class="admin-menu-text">
+                Data Wali
+            </span>
+
+        </a>
+
+
+        <!-- TAGIHAN -->
+
+        <a
+            href="{{ route('admin.tagihan.index') }}"
+            class="admin-menu-link {{ request()->routeIs('admin.tagihan.index', 'admin.tagihan.show') ? 'active' : '' }}"
+            title="Data Tagihan"
+        >
+
+            <i class="bi bi-receipt-cutoff"></i>
+
+            <span class="admin-menu-text">
+                Data Tagihan
+            </span>
+
+        </a>
+
+        <a
+            href="{{ route('admin.tagihan-khusus.create') }}"
+            class="admin-menu-link {{ request()->routeIs('admin.tagihan-khusus.*') ? 'active' : '' }}"
+            title="Tagihan Khusus"
+        >
+
+            <i class="bi bi-lightning-charge-fill"></i>
+
+            <span class="admin-menu-text">
+                Tagihan Khusus
+            </span>
+
+        </a>
+
+
+        <!-- GENERATE TAGIHAN -->
+
+        <a
+            href="{{ route('admin.tagihan.generate') }}"
+            class="admin-menu-link {{ request()->routeIs('admin.tagihan.generate') ? 'active' : '' }}"
+            title="Generate Tagihan"
+        >
+
+            <i class="bi bi-calendar-plus-fill"></i>
+
+            <span class="admin-menu-text">
+                Generate Tagihan
+            </span>
+
+        </a>
+
+
+        <!-- JENIS TAGIHAN -->
+
+        <a
+            href="{{ route('admin.jenis-tagihan.index') }}"
+            class="admin-menu-link {{ request()->routeIs('admin.jenis-tagihan.*') ? 'active' : '' }}"
+            title="Jenis Tagihan"
+        >
+
+            <i class="bi bi-tags-fill"></i>
+
+            <span class="admin-menu-text">
+                Jenis Tagihan
+            </span>
+
+        </a>
+
+
+        <!-- TARIF TAGIHAN -->
+
+        <a
+            href="{{ route('admin.tarif-tagihan.index') }}"
+            class="admin-menu-link {{ request()->routeIs('admin.tarif-tagihan.*') ? 'active' : '' }}"
+            title="Tarif Tagihan"
+        >
+
+            <i class="bi bi-cash-coin"></i>
+
+            <span class="admin-menu-text">
+                Tarif Tagihan
+            </span>
+
+        </a>
+
+
+        <!-- PEMBAYARAN -->
+
+        <a
+            href="{{ route('admin.pembayaran.index') }}"
+            class="admin-menu-link {{ request()->routeIs('admin.pembayaran.*') ? 'active' : '' }}"
+            title="Pembayaran"
+        >
+
+            <i class="bi bi-wallet2"></i>
+
+            <span class="admin-menu-text">
+                Pembayaran
+            </span>
+
+        </a>
+
+
+        <!-- PEMBAYARAN OFFLINE -->
+
+        <a
+            href="{{ route('admin.pembayaran.offline.create') }}"
+            class="admin-menu-link {{ request()->routeIs('admin.pembayaran.offline.*') ? 'active' : '' }}"
+            title="Pembayaran Offline"
+        >
+            <i class="bi bi-cash-stack"></i>
+
+            <span class="admin-menu-text">
+                Pembayaran Offline
+            </span>
+        </a>
+
+
+        <!-- PENGELUARAN -->
+
+        <a
+            href="{{ route('admin.pengeluaran.index') }}"
+            class="admin-menu-link {{ request()->routeIs('admin.pengeluaran.*') ? 'active' : '' }}"
+            title="Pengeluaran"
+        >
+
+            <i class="bi bi-currency-exchange"></i>
+
+            <span class="admin-menu-text">
+                Pengeluaran
+            </span>
+
+        </a>
+
+
+        <!-- LAPORAN PEMASUKAN -->
+
+        <a
+            href="{{ route('laporan.pemasukan') }}"
+            class="admin-menu-link {{ request()->routeIs('laporan.pemasukan') ? 'active' : '' }}"
+            title="Laporan Pemasukan"
+        >
+
+            <i class="bi bi-graph-up-arrow"></i>
+
+            <span class="admin-menu-text">
+                Laporan Pemasukan
+            </span>
+
+        </a>
+
+
+        <!-- AKUN -->
+
+        <a
+            href="{{ route('akun.password.edit') }}"
+            class="admin-menu-link {{ request()->routeIs('akun.password.*') ? 'active' : '' }}"
+            title="Ganti Password"
+        >
+
+            <i class="bi bi-shield-lock-fill"></i>
+
+            <span class="admin-menu-text">
+                Ganti Password
+            </span>
+
+        </a>
+
+
+        <!-- LAPORAN PENGELUARAN -->
+
+        <a
+            href="{{ route('laporan.pengeluaran') }}"
+            class="admin-menu-link {{ request()->routeIs('laporan.pengeluaran') ? 'active' : '' }}"
+            title="Laporan Pengeluaran"
+        >
+
+            <i class="bi bi-bar-chart-fill"></i>
+
+            <span class="admin-menu-text">
+                Laporan Pengeluaran
+            </span>
+
+        </a>
+
+
+    </div>
+
+
+    <!-- FOOTER -->
+
+    <div class="admin-sidebar-footer">
+
+        <div class="admin-login-label">
+            Login sebagai:
+        </div>
+
+        <div class="admin-login-name">
+            {{ auth()->user()->name ?? 'Administrator' }}
+        </div>
+
+
+        <form
+            action="{{ route('logout') }}"
+            method="POST"
+        >
+
+            @csrf
+
+            <button
+                type="submit"
+                class="admin-logout"
+                title="Logout"
+            >
+
+                <i class="bi bi-box-arrow-right"></i>
+
+                <span>
+                    Logout
+                </span>
+
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<script>
+
+document.addEventListener('DOMContentLoaded', function () {
+
+    const sidebarToggle =
+        document.getElementById('sidebarToggle');
+
+    const body =
+        document.body;
+
+
+    /*
+    =============================
+    Ambil status terakhir
+    =============================
+    */
+
+    const sidebarState =
+        localStorage.getItem('adminSidebarCollapsed');
+
+
+    if (sidebarState === 'true') {
+
+        body.classList.add(
+            'sidebar-collapsed'
+        );
+
+    }
+
+
+    /*
+    =============================
+    Tombol buka / tutup
+    =============================
+    */
+
+    sidebarToggle.addEventListener(
+        'click',
+        function () {
+
+            body.classList.toggle(
+                'sidebar-collapsed'
+            );
+
+
+            localStorage.setItem(
+                'adminSidebarCollapsed',
+
+                body.classList.contains(
+                    'sidebar-collapsed'
+                )
+            );
+
+        }
+    );
+
+});
+
+</script>
+
+<script>
+(function(){try{
+  var k='alAsrorTheme',
+      s=localStorage.getItem(k),
+      d=(window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';
+  document.documentElement.setAttribute('data-theme', s||d); /* ganti s||d -> s||'light' untuk paksa terang */
+}catch(e){}})();
+</script>
+
+
+
+{{-- ============ INIT TEMA (paling awal, hindari flash) ============ --}}
+<script>
+(function(){try{
+  var k='alAsrorTheme',
+      s=localStorage.getItem(k),
+      d=(window.matchMedia&&matchMedia('(prefers-color-scheme: dark)').matches)?'dark':'light';
+  document.documentElement.setAttribute('data-theme', s||d); /* ganti s||d -> s||'light' untuk paksa terang */
+}catch(e){}})();
+</script>
+
+<style>
+/* =====================================================================
+   AL ASROR · SIDEBAR (standalone, responsive, dark/light, grouped+badge)
+   Class generik ".ax-*" dipakai identik oleh portal admin & wali.
+   ===================================================================== */
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0;padding:0}
+
+:root{
+  color-scheme:light;
+  --surface:#ffffff; --surface-2:#f1f5f9; --content-bg:#f8fafc;
+  --text:#0f172a; --text-muted:#64748b; --border:#e2e8f0;
+  --accent:#0d9488; --accent-soft:rgba(13,148,136,.12); --danger:#dc2626;
+  --shadow:0 1px 2px rgba(15,23,42,.06),0 8px 24px rgba(15,23,42,.10);
+  --radius:12px; --radius-sm:9px;
+  --sb-w:264px; --sb-w-collapsed:80px; --sb-rail-w:92px; --topbar-h:56px;
+  --sb-logo-bg:linear-gradient(135deg,#0d9488,#0f766e); --sb-logo-fg:#ffffff;
+}
+[data-theme="dark"]{
+  color-scheme:dark;
+  --surface:#111827; --surface-2:#0b1220; --content-bg:#0b1220;
+  --text:#e5e7eb; --text-muted:#94a3b8; --border:#1f2937;
+  --accent:#2dd4bf; --accent-soft:rgba(45,212,191,.14); --danger:#f87171;
+  --shadow:0 1px 2px rgba(0,0,0,.4),0 8px 24px rgba(0,0,0,.5);
+}
+
+/* ▼▼▼ VARIAN TEMA SIDEBAR — aktifkan SALAH SATU blok ▼▼▼ */
+
+/* ===== VARIAN A (DEFAULT): sidebar SELALU gelap ===== */
+:root{
+  --sb-bg:#0f172a; --sb-fg:#e2e8f0; --sb-muted:rgba(226,232,240,.55);
+  --sb-border:rgba(255,255,255,.08); --sb-hover:rgba(255,255,255,.06);
+  --sb-active:rgba(13,148,136,.22); --sb-active-fg:#5eead4;
+}
+
+/* ===== VARIAN B: sidebar IKUT tema (terang/gelap) =====
+:root{
+  --sb-bg:#ffffff; --sb-fg:#0f172a; --sb-muted:#64748b;
+  --sb-border:#e2e8f0; --sb-hover:#f1f5f9;
+  --sb-active:rgba(13,148,136,.12); --sb-active-fg:#0f766e;
+}
+[data-theme="dark"]{
+  --sb-bg:#0f172a; --sb-fg:#e2e8f0; --sb-muted:rgba(226,232,240,.55);
+  --sb-border:rgba(255,255,255,.08); --sb-hover:rgba(255,255,255,.06);
+  --sb-active:rgba(45,212,191,.18); --sb-active-fg:#5eead4;
+}
+===== akhir VARIAN B (comment blok A di atas untuk mengaktifkan B) ===== */
+/* ▲▲▲ VARIAN TEMA SIDEBAR ▲▲▲ */
+
+/* ---------- BODY / CONTENT ---------- */
+body{
+  background:var(--content-bg); color:var(--text);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+  -webkit-font-smoothing:antialiased; min-height:100vh;
+  transition:background .25s ease,color .25s ease,padding-left .25s ease,padding-top .2s ease;
+}
+.card,.list-group-item,.modal-content,.dropdown-menu{
+  background:var(--surface)!important; color:var(--text)!important; border-color:var(--border)!important;
+}
+.table{--bs-table-bg:transparent;--bs-table-color:var(--text);--bs-table-border-color:var(--border)}
+.table th,.table td{color:var(--text)}
+.bg-light{background:var(--surface-2)!important}
+.text-muted{color:var(--text-muted)!important}
+.form-control,.form-select{background:var(--surface);color:var(--text);border-color:var(--border)}
+.form-control::placeholder{color:var(--text-muted)}
+.btn-close{filter:var(--bs-btn-close-white-filter,none)}
+
+/* ---------- SIDEBAR (base = desktop) ---------- */
+.ax-sidebar{
+  position:fixed; top:0; left:0; width:var(--sb-w);
+  height:100vh; height:100dvh;
+  display:flex; flex-direction:column;
+  background:var(--sb-bg); color:var(--sb-fg);
+  border-right:1px solid var(--sb-border);
+  z-index:1040;
+  transition:width .25s ease, transform .28s cubic-bezier(.4,0,.2,1), background .25s ease, box-shadow .25s ease;
+}
+.ax-header{
+  position:relative; display:flex; align-items:center; gap:12px;
+  height:72px; padding:0 16px; flex-shrink:0; border-bottom:1px solid var(--sb-border);
+}
+.ax-logo{
+  width:44px; height:44px; border-radius:12px; flex-shrink:0;
+  background:var(--sb-logo-bg); color:var(--sb-logo-fg);
+  display:grid; place-items:center; font-weight:800; font-size:15px; letter-spacing:.5px;
+  box-shadow:0 4px 12px rgba(13,148,136,.35);
+}
+.ax-brand{display:flex; flex-direction:column; min-width:0; overflow:hidden; transition:opacity .2s ease,width .2s ease}
+.ax-brand-title{font-size:16px; font-weight:800; line-height:1.15; white-space:nowrap}
+.ax-brand-sub{font-size:11px; color:var(--sb-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+
+.ax-toggle{
+  position:absolute; top:50%; right:-14px; transform:translateY(-50%);
+  width:28px; height:28px; border:none; border-radius:50%;
+  background:var(--surface); color:var(--text);
+  display:grid; place-items:center; box-shadow:var(--shadow); cursor:pointer; z-index:2;
+  transition:transform .25s ease, background .25s ease, color .25s ease;
+}
+.ax-toggle i{font-size:14px; transition:transform .25s ease}
+.ax-close{
+  display:none; margin-left:auto; width:38px; height:38px; border:none; border-radius:10px;
+  background:var(--sb-hover); color:var(--sb-fg); font-size:18px; cursor:pointer; place-items:center;
+}
+
+.ax-menu{flex:1; min-height:0; overflow-y:auto; overflow-x:hidden; padding:10px 10px 12px; display:flex; flex-direction:column; gap:2px}
+.ax-menu::-webkit-scrollbar{width:6px}
+.ax-menu::-webkit-scrollbar-thumb{background:var(--sb-border); border-radius:10px}
+.ax-menu::-webkit-scrollbar-track{background:transparent}
+
+/* label seksi (desktop-expanded & drawer mobile) */
+.ax-section{
+  font-size:10px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+  color:var(--sb-muted); padding:14px 12px 6px; white-space:nowrap;
+  transition:opacity .2s ease;
+}
+
+.ax-link{
+  display:flex; align-items:center; gap:12px; min-height:46px; padding:10px 12px;
+  border-radius:var(--radius-sm); color:var(--sb-fg); text-decoration:none; white-space:nowrap;
+  position:relative; transition:background .18s ease,color .18s ease;
+}
+.ax-link i{width:22px; font-size:18px; text-align:center; flex-shrink:0; color:var(--sb-muted); transition:color .18s ease}
+.ax-text{overflow:hidden; text-overflow:ellipsis; transition:opacity .2s ease,width .2s ease}
+.ax-link:hover{background:var(--sb-hover)}
+.ax-link:hover i{color:var(--sb-fg)}
+.ax-link.active{background:var(--sb-active); color:var(--sb-active-fg); font-weight:600}
+.ax-link.active i{color:var(--sb-active-fg)}
+.ax-link.active::before{content:""; position:absolute; left:0; top:8px; bottom:8px; width:3px; border-radius:0 3px 3px 0; background:var(--accent)}
+
+/* badge angka (expanded & drawer) */
+.ax-badge{
+  margin-left:auto; min-width:20px; height:20px; padding:0 6px; border-radius:999px;
+  background:var(--accent); color:#fff; font-size:11px; font-weight:700; line-height:1;
+  display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.ax-link.active .ax-badge{background:var(--sb-active-fg); color:var(--sb-bg)}
+/* dot kecil (collapsed & tablet) */
+.ax-dot{
+  display:none; position:absolute; top:7px; right:9px; width:8px; height:8px; border-radius:50%;
+  background:var(--accent); box-shadow:0 0 0 2px var(--sb-bg);
+}
+
+.ax-footer{
+  flex-shrink:0; padding:12px 14px calc(12px + env(safe-area-inset-bottom));
+  border-top:1px solid var(--sb-border); display:flex; flex-direction:column; gap:10px;
+}
+.ax-user{display:flex; flex-direction:column; min-width:0}
+.ax-user-label{font-size:11px; color:var(--sb-muted); white-space:nowrap}
+.ax-user-name{font-size:14px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.ax-actions{display:flex; gap:8px}
+.ax-actions form{flex:1; display:flex; min-width:0}
+.ax-theme-btn{
+  flex:1; min-width:0; height:40px; display:flex; align-items:center; justify-content:center; gap:8px;
+  border:1px solid var(--sb-border); background:transparent; color:var(--sb-fg);
+  border-radius:var(--radius-sm); cursor:pointer; font-size:13px; font-weight:600;
+  transition:background .18s ease,border-color .18s ease;
+}
+.ax-theme-btn:hover{background:var(--sb-hover)}
+.ax-logout{
+  flex:1; min-width:0; width:100%; height:40px; display:flex; align-items:center; justify-content:center; gap:8px;
+  border:none; background:var(--danger); color:#fff; border-radius:var(--radius-sm);
+  cursor:pointer; font-size:13px; font-weight:600; text-decoration:none; transition:filter .18s ease;
+}
+.ax-logout:hover{filter:brightness(.92)}
+
+/* ---------- TOPBAR & BACKDROP (mobile) ---------- */
+.ax-topbar{
+  display:none; position:fixed; top:0; left:0; right:0; z-index:1030;
+  height:calc(var(--topbar-h) + env(safe-area-inset-top)); padding:env(safe-area-inset-top) 12px 0;
+  align-items:center; gap:12px; background:var(--sb-bg); color:var(--sb-fg);
+  border-bottom:1px solid var(--sb-border);
+}
+.ax-burger{width:42px; height:42px; border:none; border-radius:10px; background:var(--sb-hover); color:var(--sb-fg); display:grid; place-items:center; font-size:20px; cursor:pointer; flex-shrink:0}
+.ax-topbar .ax-logo{width:34px; height:34px; font-size:13px; border-radius:9px; box-shadow:none}
+.ax-topbar-title{font-weight:800; font-size:15px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+/* FIX: backdrop TIDAK menelan klik saat drawer tertutup */
+.ax-backdrop{display:none; position:fixed; inset:0; z-index:1035; background:rgba(2,6,23,.55); backdrop-filter:blur(2px); opacity:0; pointer-events:none; transition:opacity .25s ease}
+
+/* ---------- FOCUS ---------- */
+.ax-link:focus-visible,.ax-toggle:focus-visible,.ax-burger:focus-visible,
+.ax-theme-btn:focus-visible,.ax-logout:focus-visible,.ax-close:focus-visible{
+  outline:2px solid var(--accent); outline-offset:2px;
+}
+
+/* =====================================================================
+   RESPONSIVE
+   ===================================================================== */
+/* ---------- DESKTOP (>=992): collapsible ---------- */
+@media (min-width:992px){
+  body{padding-left:var(--sb-w)}
+  body.ax-collapsed{padding-left:var(--sb-w-collapsed)}
+  body.ax-collapsed .ax-sidebar{width:var(--sb-w-collapsed)}
+  body.ax-collapsed .ax-brand,
+  body.ax-collapsed .ax-text,
+  body.ax-collapsed .ax-badge,
+  body.ax-collapsed .ax-user-label,
+  body.ax-collapsed .ax-user-name,
+  body.ax-collapsed .ax-theme-btn span,
+  body.ax-collapsed .ax-logout span{opacity:0; width:0; margin:0; overflow:hidden; pointer-events:none}
+  /* seksi jadi garis pemisah tipis saat collapsed */
+  body.ax-collapsed .ax-section{height:1px; padding:0; margin:8px 12px; background:var(--sb-border); font-size:0; line-height:0; color:transparent; overflow:hidden}
+  body.ax-collapsed .ax-dot{display:block}
+  body.ax-collapsed .ax-header{justify-content:center; padding:0}
+  body.ax-collapsed .ax-link{justify-content:center; padding:10px 0}
+  body.ax-collapsed .ax-toggle i{transform:rotate(180deg)}
+  body.ax-collapsed .ax-actions{flex-direction:column}
+  body.ax-collapsed .ax-theme-btn,
+  body.ax-collapsed .ax-actions form{width:100%}
+}
+
+/* ---------- TABLET (768–991): rail padat, ikon + label DI BAWAH ---------- */
+@media (min-width:768px) and (max-width:991.98px){
+  body{padding-left:var(--sb-rail-w)}
+  .ax-sidebar{width:var(--sb-rail-w)}
+  .ax-toggle{display:none}
+  .ax-header{flex-direction:column; justify-content:center; height:auto; padding:14px 6px; gap:6px}
+  .ax-brand{align-items:center; text-align:center; width:100%}
+  .ax-brand-title{font-size:12px}
+  .ax-brand-sub{display:none}
+  .ax-menu{padding:8px 6px}
+  .ax-section{height:1px; padding:0; margin:8px 6px; background:var(--sb-border); font-size:0; line-height:0; color:transparent; overflow:hidden}
+  .ax-link{flex-direction:column; gap:4px; justify-content:center; text-align:center; padding:10px 4px; min-height:64px; white-space:normal}
+  .ax-link i{width:auto; font-size:20px}
+  .ax-text{font-size:10.5px; line-height:1.15; margin:0; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; white-space:normal}
+  .ax-badge{display:none}
+  .ax-dot{display:block}
+  .ax-link.active::before{display:none}
+  .ax-footer{padding:10px 6px calc(10px + env(safe-area-inset-bottom))}
+  .ax-user{display:none}
+  .ax-actions{flex-direction:column}
+  .ax-theme-btn,.ax-logout{width:100%; font-size:0; gap:0}
+  .ax-theme-btn i,.ax-logout i{font-size:18px}
+}
+
+/* ---------- MOBILE (<768): drawer overlay + topbar hamburger ---------- */
+@media (max-width:767.98px){
+  body{padding-left:0; padding-top:calc(var(--topbar-h) + env(safe-area-inset-top))}
+  .ax-topbar{display:flex}
+  .ax-backdrop{display:block}
+  .ax-sidebar{width:min(86vw,320px); transform:translateX(-100%); box-shadow:none}
+  body.ax-drawer-open .ax-sidebar{transform:translateX(0); box-shadow:0 10px 40px rgba(0,0,0,.45)}
+  body.ax-drawer-open .ax-backdrop{opacity:1; pointer-events:auto}   /* <-- hanya tangkap klik saat OPEN */
+  body.ax-drawer-open{overflow:hidden}
+  .ax-toggle{display:none}
+  .ax-header{height:64px}
+  .ax-brand-sub{display:block}
+  body.ax-drawer-open .ax-close{display:grid}
+  .ax-link{min-height:50px; font-size:15px}
+  .ax-link i{font-size:20px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+@php $b = $sidebarBadges ?? []; @endphp
+
+{{-- ================= TOPBAR (hanya mobile) ================= --}}
+<header class="ax-topbar">
+    <button type="button" class="ax-burger" id="axBurger"
+            aria-label="Buka menu navigasi" aria-expanded="false" aria-controls="axSidebar">
+        <i class="bi bi-list"></i>
+    </button>
+    <div class="ax-logo">AA</div>
+    <div class="ax-topbar-title">AL ASROR</div>
+</header>
+
+<div class="ax-backdrop" id="axBackdrop" aria-hidden="true"></div>
+
+{{-- ================= SIDEBAR ================= --}}
+<aside class="ax-sidebar ax--admin" id="axSidebar" aria-label="Navigasi utama">
+
+    {{-- HEADER --}}
+    <div class="ax-header">
+        <div class="ax-logo">AA</div>
+        <div class="ax-brand">
+            <div class="ax-brand-title">AL ASROR</div>
+            <div class="ax-brand-sub">Sistem Keuangan</div>
+        </div>
+        <button type="button" class="ax-close" id="axClose" aria-label="Tutup menu">
+            <i class="bi bi-x-lg"></i>
+        </button>
+        <button type="button" class="ax-toggle" id="axToggle"
+                title="Ciutkan / lebarkan sidebar" aria-label="Ciutkan atau lebarkan sidebar" aria-expanded="true">
+            <i class="bi bi-chevron-left"></i>
+        </button>
+    </div>
+
+    {{-- MENU --}}
+    <nav class="ax-menu">
+
+        <div class="ax-section">Utama</div>
+        <a href="{{ route('admin.dashboard') }}"
+           class="ax-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" title="Dashboard">
+            <i class="bi bi-speedometer2"></i><span class="ax-text">Dashboard</span>
+        </a>
+
+        <div class="ax-section">Santri &amp; Wali</div>
+        <a href="{{ route('admin.santri.index') }}"
+           class="ax-link {{ request()->routeIs('admin.santri.*') ? 'active' : '' }}" title="Data Santri">
+            <i class="bi bi-mortarboard-fill"></i><span class="ax-text">Data Santri</span>
+        </a>
+        <a href="{{ route('admin.wali.index') }}"
+           class="ax-link {{ request()->routeIs('admin.wali.*') ? 'active' : '' }}" title="Data Wali">
+            <i class="bi bi-person-vcard-fill"></i><span class="ax-text">Data Wali</span>
+        </a>
+
+        <div class="ax-section">Tagihan</div>
+        <a href="{{ route('admin.tagihan.index') }}"
+           class="ax-link {{ request()->routeIs('admin.tagihan.index','admin.tagihan.show') ? 'active' : '' }}" title="Data Tagihan">
+            <i class="bi bi-receipt-cutoff"></i><span class="ax-text">Data Tagihan</span>
+            @if(!empty($b['tagihan']))<span class="ax-badge">{{ $b['tagihan'] }}</span><span class="ax-dot" aria-hidden="true"></span>@endif
+        </a>
+        <a href="{{ route('admin.tagihan-khusus.create') }}"
+           class="ax-link {{ request()->routeIs('admin.tagihan-khusus.*') ? 'active' : '' }}" title="Tagihan Khusus">
+            <i class="bi bi-lightning-charge-fill"></i><span class="ax-text">Tagihan Khusus</span>
+        </a>
+        <a href="{{ route('admin.tagihan.generate') }}"
+           class="ax-link {{ request()->routeIs('admin.tagihan.generate') ? 'active' : '' }}" title="Generate Tagihan">
+            <i class="bi bi-calendar-plus-fill"></i><span class="ax-text">Generate Tagihan</span>
+        </a>
+        <a href="{{ route('admin.jenis-tagihan.index') }}"
+           class="ax-link {{ request()->routeIs('admin.jenis-tagihan.*') ? 'active' : '' }}" title="Jenis Tagihan">
+            <i class="bi bi-tags-fill"></i><span class="ax-text">Jenis Tagihan</span>
+        </a>
+        <a href="{{ route('admin.tarif-tagihan.index') }}"
+           class="ax-link {{ request()->routeIs('admin.tarif-tagihan.*') ? 'active' : '' }}" title="Tarif Tagihan">
+            <i class="bi bi-cash-coin"></i><span class="ax-text">Tarif Tagihan</span>
+        </a>
+
+        <div class="ax-section">Keuangan</div>
+        <a href="{{ route('admin.pembayaran.index') }}"
+           class="ax-link {{ request()->routeIs('admin.pembayaran.*') ? 'active' : '' }}" title="Pembayaran">
+            <i class="bi bi-wallet2"></i><span class="ax-text">Pembayaran</span>
+            @if(!empty($b['verifikasi']))<span class="ax-badge">{{ $b['verifikasi'] }}</span><span class="ax-dot" aria-hidden="true"></span>@endif
+        </a>
+        <a href="{{ route('admin.pembayaran.offline.create') }}"
+           class="ax-link {{ request()->routeIs('admin.pembayaran.offline.*') ? 'active' : '' }}" title="Pembayaran Offline">
+            <i class="bi bi-cash-stack"></i><span class="ax-text">Pembayaran Offline</span>
+        </a>
+        <a href="{{ route('admin.pengeluaran.index') }}"
+           class="ax-link {{ request()->routeIs('admin.pengeluaran.*') ? 'active' : '' }}" title="Pengeluaran">
+            <i class="bi bi-currency-exchange"></i><span class="ax-text">Pengeluaran</span>
+        </a>
+
+        <div class="ax-section">Laporan</div>
+        <a href="{{ route('laporan.pemasukan') }}"
+           class="ax-link {{ request()->routeIs('laporan.pemasukan') ? 'active' : '' }}" title="Laporan Pemasukan">
+            <i class="bi bi-graph-up-arrow"></i><span class="ax-text">Laporan Pemasukan</span>
+        </a>
+        <a href="{{ route('laporan.pengeluaran') }}"
+           class="ax-link {{ request()->routeIs('laporan.pengeluaran') ? 'active' : '' }}" title="Laporan Pengeluaran">
+            <i class="bi bi-bar-chart-fill"></i><span class="ax-text">Laporan Pengeluaran</span>
+        </a>
+
+        <div class="ax-section">Akun</div>
+        <a href="{{ route('akun.password.edit') }}"
+           class="ax-link {{ request()->routeIs('akun.password.*') ? 'active' : '' }}" title="Ganti Password">
+            <i class="bi bi-shield-lock-fill"></i><span class="ax-text">Ganti Password</span>
+        </a>
+    </nav>
+
+    {{-- FOOTER --}}
+    <div class="ax-footer">
+        <div class="ax-user">
+            <span class="ax-user-label">Login sebagai</span>
+            <span class="ax-user-name">{{ auth()->user()->name ?? 'Administrator' }}</span>
+        </div>
+        <div class="ax-actions">
+            <button type="button" class="ax-theme-btn" id="axTheme" aria-label="Ganti mode tampilan">
+                <i class="bi bi-moon-stars-fill"></i><span>Gelap</span>
+            </button>
+            <form action="{{ route('logout') }}" method="POST">
+                @csrf
+                <button type="submit" class="ax-logout" title="Logout">
+                    <i class="bi bi-box-arrow-right"></i><span>Logout</span>
+                </button>
+            </form>
+        </div>
+    </div>
+</aside>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var root   = document.documentElement,
+        body   = document.body,
+        CK     = 'adminSidebarCollapsed',
+        TK     = 'alAsrorTheme';
+
+    var toggle  = document.getElementById('axToggle'),
+        burger  = document.getElementById('axBurger'),
+        closeBtn= document.getElementById('axClose'),
+        backdrop= document.getElementById('axBackdrop'),
+        sidebar = document.getElementById('axSidebar'),
+        themeBtn= document.getElementById('axTheme');
+
+    var mqMobile = window.matchMedia('(max-width:767.98px)');
+
+    /* ---------- COLLAPSE (desktop) ---------- */
+    if (localStorage.getItem(CK) === 'true') body.classList.add('ax-collapsed');
+    function syncToggleAria(){ if(toggle) toggle.setAttribute('aria-expanded', String(!body.classList.contains('ax-collapsed'))); }
+    syncToggleAria();
+    if (toggle) toggle.addEventListener('click', function(){
+        body.classList.toggle('ax-collapsed');
+        localStorage.setItem(CK, body.classList.contains('ax-collapsed'));
+        syncToggleAria();
+    });
+
+    /* ---------- INERT ---------- */
+    function syncInert(){ if(sidebar) sidebar.inert = mqMobile.matches && !body.classList.contains('ax-drawer-open'); }
+
+    /* ---------- DRAWER (mobile) ---------- */
+    function openDrawer(){
+        body.classList.add('ax-drawer-open');
+        if(burger) burger.setAttribute('aria-expanded','true');
+        syncInert();
+        var f = sidebar && sidebar.querySelector('.ax-link');
+        if(f) f.focus({preventScroll:true});
+    }
+    function closeDrawer(){
+        body.classList.remove('ax-drawer-open');
+        if(burger) burger.setAttribute('aria-expanded','false');
+        syncInert();
+        if(burger) burger.focus({preventScroll:true});
+    }
+    if(burger)  burger.addEventListener('click', openDrawer);
+    if(closeBtn)closeBtn.addEventListener('click', closeDrawer);
+    if(backdrop)backdrop.addEventListener('click', closeDrawer);
+    document.addEventListener('keydown', function(e){
+        if(e.key === 'Escape' && body.classList.contains('ax-drawer-open')) closeDrawer();
+    });
+    (mqMobile.addEventListener ? mqMobile.addEventListener.bind(mqMobile,'change') : mqMobile.addListener.bind(mqMobile))(function(e){
+        var matches = (e.matches !== undefined) ? e.matches : mqMobile.matches;
+        if(!matches) closeDrawer();
+        syncInert();
+    });
+    document.addEventListener('keydown', function(e){
+        if(e.key !== 'Tab' || !body.classList.contains('ax-drawer-open') || !sidebar) return;
+        var els = sidebar.querySelectorAll('a[href],button:not([disabled])');
+        if(!els.length) return;
+        var first = els[0], last = els[els.length-1];
+        if(e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
+        else if(!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
+    });
+    if(sidebar) sidebar.addEventListener('click', function(e){
+        if(e.target.closest('.ax-link') && mqMobile.matches) closeDrawer();
+    });
+    syncInert();
+
+    /* ---------- TEMA ---------- */
+    function applyTheme(t){
+        root.setAttribute('data-theme', t);
+        localStorage.setItem(TK, t);
+        if(themeBtn){
+            var dark = (t === 'dark');
+            themeBtn.querySelector('i').className = 'bi ' + (dark ? 'bi-sun-fill' : 'bi-moon-stars-fill');
+            themeBtn.querySelector('span').textContent = dark ? 'Terang' : 'Gelap';
+            themeBtn.setAttribute('aria-label', dark ? 'Aktifkan mode terang' : 'Aktifkan mode gelap');
+        }
+    }
+    applyTheme(root.getAttribute('data-theme') || 'light');
+    if(themeBtn) themeBtn.addEventListener('click', function(){
+        applyTheme(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+    });
+});
+</script>
+
+                            <button
+                                type="button"
+                                class="toggle-password"
+                                id="togglePassword"
+                                title="Tampilkan password"
+                                aria-label="Tampilkan password"
+                                aria-pressed="false"
+                            >
+                                <i class="bi bi-eye" aria-hidden="true"></i>
+                            </button>
+
+
+        const password = document.getElementById('password');
+        const togglePassword = document.getElementById('togglePassword');
+
+                if (password && togglePassword) {
+            togglePassword.addEventListener('click', function () {
+                const icon = togglePassword.querySelector('i');
+
+                const isHidden = password.type === 'password';
+
+                password.type = isHidden ? 'text' : 'password';
+
+                icon.classList.toggle('bi-eye', !isHidden);
+                icon.classList.toggle('bi-eye-slash', isHidden);
+
+                togglePassword.title = isHidden
+                    ? 'Sembunyikan password'
+                    : 'Tampilkan password';
+
+                togglePassword.setAttribute(
+                    'aria-label',
+                    isHidden
+                        ? 'Sembunyikan password'
+                        : 'Tampilkan password'
+                );
+
+                togglePassword.setAttribute(
+                    'aria-pressed',
+                    isHidden ? 'true' : 'false'
+                );
+            });
+        }
+
+
+                    return redirect()
+                ->route(
+                    'wali.pembayaran.show',
+                    $pembayaran->id
+                )
+                ->with(
+                    'success',
+                    'Pembayaran berhasil dibuat dan menunggu verifikasi admin.'
+                );
